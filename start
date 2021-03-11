@@ -29,7 +29,7 @@ pacman -Sy wget parted &&
 
 
 
-# РАЗМЕТКА
+echo  'РАЗМЕТКА'
 
 # требуются wget и parted
 # не забыть изменить vda на sda
@@ -52,17 +52,17 @@ print
 
 
 
-# ФОРМАТИРОВАНИЕ
+echo 'ФОРМАТИРОВАНИЕ'
 
-mkfs.fat -F32 /dev/vda1 &&		#EFI  (FAT32)
-mkfs.ext2 /dev/vda2	&&			  #boot (ext2)
-mkfs.ext4 /dev/vda4	&&			  #root (ext4)
-mkswap /dev/vda3 &&				    #swap
+mkfs.fat -F32 /dev/vda1 &&			 #EFI  (FAT32)
+mkfs.ext2 /dev/vda2	&&			 #boot (ext2)
+mkfs.ext4 /dev/vda4	&&			 #root (ext4)
+mkswap /dev/vda3 &&				 #swap
 swapon /dev/vda3 &&
 
 
 
-# МОНТИРОВАНИЕ
+echo 'МОНТИРОВАНИЕ'
 
 mount /dev/vda4 /mnt &&
 mkdir -p /mnt/{home,boot} &&
@@ -71,21 +71,21 @@ lsblk
 
 
 
-# УСТАНОВКА БАЗОВОЙ СИСТЕМЫ
+echo 'УСТАНОВКА БАЗОВОЙ СИСТЕМЫ'
 
 pacstrap /mnt linux-firmware linux-zen-headers linux-zen base base-devel nano dhcpcd dialog wpa_supplicant netctl mc git wget &&   
 genfstab -U /mnt >> /mnt/etc/fstab
 
 
 
-# ПЕРЕХОД В НОВОЕ ОКРУЖЕНИЕ
+echo 'ПЕРЕХОД В НОВОЕ ОКРУЖЕНИЕ'
 
 arch-chroot  /mnt  /bin/bash 
 echo 'HOOKS=(base udev autodetect modconf block keymap filesystems keyboard fsck)' >> /etc/mkinitcpio.conf	
 
 
 
-# СОЗДАНИЕ ЯДРА И ЗАГРУЗЧИКА
+echo 'СОЗДАНИЕ ЯДРА И ЗАГРУЗЧИКА'
 
 cd /boot && mkinitcpio -p linux &&
 pacman -Syu grub efibootmgr dosfstools os-prober mtools &&
@@ -93,129 +93,17 @@ mkdir /boot/EFI
 mount /dev/vda1  /boot/EFI
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --recheck &&
 grub-mkconfig -o /boot/grub/grub.cfg &&
-#exit
-#umount /mnt/boot/EFI &&
-#umount /mnt/boot &&
-#umount /mnt &&
-
-#systemctl reboot
 
 echo 'ЗАДАЙТЕ ПАРОЛЬ АДМЭНА :'
 passwd
 
-
-
-
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-МОМЕНТ ИСТИНЫ: ПЕРЕЗАГРУЗКА
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-
-# СЕТЬ WIFI
-----------------------
-wifi-menu -o	#запоминаем название создаваемого профиля
-netctl enable название_профиля	#автозапуск
-systemctl enable wpa_supplicant	#автозапуск 
-sudo pacman -Syu
-
-
-
-# ЛОКАЛИЗАЦИЯ(настоящая xD), ЧАСЫ и ПРОЧЕЕ 
--------------------------------------------
-hostnamectl set-hostname имя_хоста
-ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
-hwclock --systohc
-timedatectl set-ntp true
-localectl set-keymap ru
-setfont cyr-sun16
-localectl set-locale LANG="ru_RU.UTF-8"
-echo "FONT=cyr-sun16"  >>  /etc/vconsole.conf
-export LANG="ru_RU.UTF-8"
-mkinitcpio -P
-grub-mkconfig -o /boot/grub/grub.cfg
-
-==============================================================
-/*Если предполагается устанавливать 32битные приложения,
-то нужно раскомментировать ветку multilib в 
-конфиге /etc/pacman.conf*/ 
-
-[multilib]
-Include = /etc/pacman.d/mirrorlist
-
-==============================================================
-
-
-
-
-# СОЗДАНИЕ ПОЛЬЗОВАТЕЛЕЙ
-------------------------------------------------------------------------------------------------
-useradd -m -g users -G audio,games,lp,optical,power,scanner,storage,video,wheel -s /bin/bash имя_пользователя  #ненужное удалить
-passwd имя_пользователя		#создаем пароль для этого пользователя
-echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
-chfn имя_пользователя 	#если нужно
 exit
+umount /mnt/boot/EFI &&
+umount /mnt/boot &&
+umount /mnt &&
+
+systemctl reboot
 
 
 
 
-# УСТАНОВКА Xorg 
-----------------------------------------------------------------------------------------
-Все дальнейшие манипуляции проводятся из под простого пользователя с применением 'sudo'
-----------------------------------------------------------------------------------------
-sudo pacman -S xorg-server xorg-xinit xorg-apps xterm mesa-libgl	
-
-(mesa-libgl если карта Nvidia и добавляем еще lib32-mesa если будут 32битные приложения)
-
-
-
-
-# УСТАНОВКА ДРАЙВЕРА ВИДЕО
-------------------------------
-трам-пам-пам
-пам-пам
-трам-пам-пам
-Трамп!
-
-
-
-
-# ШРИФТЫ
---------------
-sudo pacman -S ttf-font-awesome ttf-liberation ttf-dejavu opendesktop-fonts ttf-bitstream-vera ttf-arphic-uming ttf-hanazono ttf-arphic-ukai
-
-
-
-
-
-
-
-
-
-
-
-=========================================================================
-# СЕТЬ (вручную)
-
-read -p "Введите имя сети: " essid
-read -p "Введите пароль: " passwd
-read -p "Введите имя компьютера: " hostname
-
-iface = ( ifconfig | cut -d ' ' -f1| tr ':' '\n' | awk NF | grep wl )
-iwctl --passphrase $passwd station $iface connect $essid 
-ping ya.ru -c 4
-
-
-
-===========================================================================
-# SSH (вручную)
-------------------
-passwd пароль_рут
-nano /etc/ssh/sshd_config
-
--------
-Port 22
-PasswordAuthentication yes
--------
-
-systemctl restart sshd.service
