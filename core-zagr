@@ -4,13 +4,16 @@
 echo 'СОЗДАНИЕ ЯДРА И ЗАГРУЗЧИКА'
 
 cd /boot && mkinitcpio -p linux-zen &&
-pacman -Syu grub efibootmgr dosfstools os-prober mtools &&
+pacman -Syu --noconfirm grub efibootmgr dosfstools os-prober mtools &&
 mkdir /boot/EFI &&
 mount /dev/${DISK}1 /boot/EFI &&
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --recheck &&
 grub-mkconfig -o /boot/grub/grub.cfg &&
 
 #clear &&
-echo '                       '                                                              
+echo '                       '
+echo '                       '
+echo '                       '
+echo '                       '
 echo 'ЗАДАЙТЕ ПАРОЛЬ АДМИНА :'
 passwd
