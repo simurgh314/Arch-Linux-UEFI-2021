@@ -14,7 +14,7 @@ echo '
 ###################################################################
 '
 
-set disk = 'vda'
+disk = vda
 loadkeys ru &&
 setfont cyr-sun16 &&
 echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen &&
@@ -64,7 +64,7 @@ echo ; #root
 echo Y;
 echo w;
 
-) | fdisk -t gpt /dev/${disk}
+) | fdisk -t gpt /dev/$disk
 
 
 
