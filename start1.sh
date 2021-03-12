@@ -22,7 +22,7 @@ export MODULE="" &&
 
 loadkeys ru &&
 setfont cyr-sun16 &&
-echo 'en_US.UTF-8 UTF-8' >> /etc/locale.gen &&
+echo 'en_US.UTF-8 UTF-8' > /etc/locale.gen &&
 echo 'en_US ISO-8859-1' >> /etc/locale.gen &&
 echo 'ru_RU.KOI8-R KOI8-R' >> /etc/locale.gen &&
 echo 'ru_RU.UTF-8 UTF-8' >> /etc/locale.gen &&
@@ -78,19 +78,20 @@ mkfs.fat -F32 /dev/${DISK}1 &&
 (echo y;) | mkfs.ext4 /dev/${DISK}4	&&
 
 
-echo 'МОНТИРУЕМ'
+echo 'МОНТИРУЕМ ФАЙЛОВУЮ СИСТЕМУ'
 
 mount /dev/${DISK}4 /mnt &&
 mkdir -p /mnt/{home,boot} &&
 mount /dev/${DISK}2 /mnt/boot &&
 lsblk
+clear &&
 
 
 echo 'СТАВИМ БАЗОВЫЕ ПАКЕТЫ'
 
-clear &&
-pacstrap /mnt linux-firmware linux-zen-headers linux-zen base base-devel nano dhcpcd dialog wpa_supplicant netctl mc net-tools git wget &&   
+pacstrap /mnt linux-firmware linux-zen-headers linux-zen base base-devel nano dhcpcd dialog wpa_supplicant netctl networkmanager network-manager-applet ppp mc net-tools git wget &&   
 genfstab -U /mnt >> /mnt/etc/fstab
+systemctl enable NetworkManager
 
 
 echo 'ПЕРЕХОДИМ В НОВОЕ ОКРУЖЕНИЕ'
@@ -102,7 +103,7 @@ echo "FILES=()" >> /etc/mkinitcpio.conf &&
 echo "HOOKS=(base udev autodetect modconf block keymap filesystems keyboard fsck)" >> /etc/mkinitcpio.conf &&
 
 
-echo 'СОЗДАЕМ ЯДРО И ЗАГРУЗЧИК'
+echo 'СОЗДАЕМ ЯДРО (Zen) И ЗАГРУЗЧИК'
 
 cd /boot && mkinitcpio -p linux-zen &&
 pacman -Syu --noconfirm grub efibootmgr dosfstools os-prober mtools &&
@@ -120,7 +121,8 @@ echo 'ЗАДАЙТЕ ПАРОЛЬ АДМИНА :'
 passwd
 
 
-echo 'МОМЕНТ ИСТИНЫ:  '
+echo 'СЕЙЧАС ПРОИЗОЙДЕТ ПЕРЕЗАПУСК. '
+
 exit
 umount /mnt/boot/EFI &&
 umount /mnt/boot &&
