@@ -39,6 +39,7 @@ echo n;
 echo ;
 echo ;
 echo +256M; #EFI
+echo Y;
 echo t;
 echo 1;
 
@@ -47,18 +48,22 @@ echo n;
 echo ;
 echo ;
 echo +256M; #boot
+echo Y;
  
  
 echo n;
 echo ;
 echo ;
 echo +4G; #swap
+echo Y;
   
   
 echo n;
 echo ;
 echo ;
 echo ; #root
+echo Y;
+echo w;
 
 ) | fdisk -t gpt /dev/vda
 
@@ -67,9 +72,9 @@ echo ; #root
 echo 'ФОРМАТИРОВАНИЕ'
 
 mkfs.fat -F32 /dev/vda1 &&			 #EFI  (FAT32)
-mkfs.ext2 /dev/vda2	&&			 #boot (ext2)
-mkfs.ext4 /dev/vda4	&&			 #root (ext4)
-mkswap /dev/vda3 &&				 #swap
+mkfs.ext2 /dev/vda2	&&			     #boot (ext2)
+mkfs.ext4 /dev/vda4	&&			     #root (ext4)
+mkswap /dev/vda3 &&				       #swap
 swapon /dev/vda3 &&
 
 
