@@ -95,11 +95,11 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 echo 'ПЕРЕХОД В НОВОЕ ОКРУЖЕНИЕ'
 
-arch-chroot /mnt /bin/bash 
-echo "MODULES=($MODULE)" > /etc/mkinitcpio.conf
-echo "BINARIES=()" >> /etc/mkinitcpio.conf
-echo "FILES=()" >> /etc/mkinitcpio.conf
-echo "HOOKS=(base udev autodetect modconf block keymap filesystems keyboard fsck)" >> /etc/mkinitcpio.conf
+arch-chroot /mnt /bin/bash &&
+echo "MODULES=($MODULE)" > /etc/mkinitcpio.conf &&
+echo "BINARIES=()" >> /etc/mkinitcpio.conf &&
+echo "FILES=()" >> /etc/mkinitcpio.conf &&
+echo "HOOKS=(base udev autodetect modconf block keymap filesystems keyboard fsck)" >> /etc/mkinitcpio.conf &&
 
 
 echo 'СОЗДАНИЕ ЯДРА И ЗАГРУЗЧИКА'
@@ -111,7 +111,7 @@ mount /dev/${DISK}1 /boot/EFI &&
 grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --recheck &&
 grub-mkconfig -o /boot/grub/grub.cfg &&
 
-clear &&
+#clear &&
 echo '                       '                                                              
 echo 'ЗАДАЙТЕ ПАРОЛЬ АДМИНА :'
 passwd
