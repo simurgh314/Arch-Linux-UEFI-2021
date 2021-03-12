@@ -25,7 +25,7 @@ echo 'ru_RU ISO-8859-5' >> /etc/locale.gen &&
 locale-gen &&
 export LANG="ru_RU.UTF-8" &&
 timedatectl set-ntp true &&
-pacman -Sy --noconfirm wget &&
+#pacman -Sy --noconfirm wget &&
 
 
 
