@@ -72,8 +72,8 @@ echo w;
 echo 'ФОРМАТИРОВАНИЕ'
 
 mkfs.fat -F32 /dev/vda1 &&
-mkfs.ext2 /dev/vda2	&&	echo y;
-mkfs.ext4 /dev/vda4	&& echo y;
+(echo y;) | mkfs.ext2 /dev/vda2	&&
+(echo y;) | mkfs.ext4 /dev/vda4	&&
 mkswap /dev/vda3 &&
 swapon /dev/vda3 &&
 
