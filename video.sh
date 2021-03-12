@@ -4,12 +4,12 @@ echo '=================================================='
 echo 'УСТАНОВКА ДРАЙВЕРА ВИДЕО' 
 echo 'НЕ ОТХОДИТЕ ОТ КОМПЬЮТЕРА (если устанавливаете Арч на компьютер) 
 системе потребуется ввод пароля' 
-echo $USER 
+#echo $USER 
 echo 'и возможно какие то ваши осмысленные манипуляции...'
 
-read -p "Введите имя пользователя: " USER
+#read -p "Введите имя пользователя: " POLZ
 
-echo 'Видеокарта Nvidia(1) или Radeon(0) ? 
+echo 'Видеокарта Nvidia(1) или Radeon(0) ?' 
 read -p "1 - Nvidia, 0 - Radeon: " GPU
 if [[ $GPU == 0 ]]; then
   video_install="git clone https://aur.archlinux.org/catalyst.git && cd catalyst && makepkg -sri"
