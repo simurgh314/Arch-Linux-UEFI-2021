@@ -23,7 +23,7 @@ echo 'ru_RU.KOI8-R KOI8-R' >> /etc/locale.gen &&
 echo 'ru_RU.UTF-8 UTF-8' >> /etc/locale.gen &&
 echo 'ru_RU ISO-8859-5' >> /etc/locale.gen &&
 locale-gen &&
-export LANG="ru_RU.UTF-8" &&
+export LANG='ru_RU.UTF-8' &&
 timedatectl set-ntp true &&
 #pacman -Sy --noconfirm wget &&
 
@@ -33,20 +33,34 @@ echo  'РАЗМЕТКА'
 # не забыть изменить vda на sda
 
 (
-	
-echo 'unit mib';
-echo 'mklabel gpt';
-echo 'mkpart primary 2 258';		#1 /dev/vda1 256MB EFI (FAT32)
-echo 'set 1 boot on';
-echo 'mkpart primary 258 514';		#2 /dev/vda2 256MB boot (ext2)
-echo 'name 2 boot';
-echo 'mkpart primary 514 4610';		#3 /dev/vda3 4GB (SWAP)
-echo 'name 3 swap';
-echo 'mkpart primary 4610 -1';		#4 /dev/vda4 (ext4)
-echo 'name 4 root';
-print
 
-) | parted -a optimal /dev/vda && # выравнивание разделов
+echo g;
+echo n;
+echo ;
+echo ;
+echo +256M; #EFI
+echo t;
+echo 1;
+
+
+echo n;
+echo ;
+echo ;
+echo +256M; #boot
+ 
+ 
+echo n;
+echo ;
+echo ;
+echo +4G; #swap
+  
+  
+echo n;
+echo ;
+echo ;
+echo ; #root
+
+) | fdisk -t gpt /dev/vda
 
 
 
