@@ -31,7 +31,7 @@ pacman -Sy wget parted &&
 
 echo  'РАЗМЕТКА'
 
-# требуются wget и parted
+# требуется wget 
 # не забыть изменить vda на sda
 
 (
