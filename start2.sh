@@ -1,5 +1,30 @@
 #!/bin/bash
 
+
+echo "MODULES=($MODULE)" > /etc/mkinitcpio.conf &&
+echo "BINARIES=()" >> /etc/mkinitcpio.conf &&
+echo "FILES=()" >> /etc/mkinitcpio.conf &&
+echo "HOOKS=(base udev autodetect modconf block keymap filesystems keyboard fsck)" >> /etc/mkinitcpio.conf &&
+
+
+echo 'СОЗДАЕМ ЯДРО (Zen) И ЗАГРУЗЧИК'
+
+cd /boot && mkinitcpio -p linux-zen &&
+pacman -Syu --noconfirm grub efibootmgr dosfstools os-prober mtools &&
+mkdir /boot/EFI &&
+mount /dev/${DISK}1 /boot/EFI &&
+grub-install --target=x86_64-efi  --bootloader-id=grub_uefi --recheck &&
+grub-mkconfig -o /boot/grub/grub.cfg &&
+
+clear &&
+echo '                       '
+echo '                       '
+echo '                       '
+echo '                       '
+echo 'ЗАДАЙТЕ ПАРОЛЬ АДМИНА :'
+passwd
+
+
 echo '====================================='
 read -p "Введите имя компьютера: " HOST
 read -p "Введите имя нового пользователя" USER
@@ -51,15 +76,6 @@ echo 'и возможно какие то ваши осмысленные ман
 
 
 
-echo 'Видеокарта Nvidia(1) или Radeon(0) 
-
-read -p "1 - Nvidia, 0 - Radeon: " GPU
-if [[ $GPU == 0 ]]; then
-  video_install="git clone https://aur.archlinux.org/catalyst.git && cd catalyst && makepkg -sri"
-elif [[ $GPU == 1 ]]; then
-  video_install="sudo pacman -Syu nvidia"
-fi
-
 echo 'Установка X-Server'
 sudo pacman -Syu --noconfirm xorg-server xorg-xinit xorg-apps xterm mesa-libgl
 
@@ -68,6 +84,16 @@ echo 'ШРИФТЫ'
 sudo pacman -S ttf-font-awesome ttf-liberation ttf-dejavu opendesktop-fonts ttf-bitstream-vera ttf-arphic-uming ttf-hanazono ttf-arphic-ukai
 
 
+
+
+echo 'СЕЙЧАС ПРОИЗОЙДЕТ ПЕРЕЗАПУСК. '
+
+exit
+umount /mnt/boot/EFI &&
+umount /mnt/boot &&
+umount /mnt &&
+
+systemctl reboot
 
 
 
