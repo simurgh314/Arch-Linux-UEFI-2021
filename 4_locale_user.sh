@@ -26,9 +26,12 @@ grub-mkconfig -o /boot/grub/grub.cfg &&
 
 echo ' СОЗДАНИЕ ПОЛЬЗОВАТЕЛЕЙ'
 
-useradd -m -g users -G audio,games,lp,optical,power,scanner,storage,video,wheel -s /bin/bash $NEW_USER &&
+useradd -m -g users -G audio,power,storage,video,wheel -s /bin/bash $NEW_USER &&
 #echo 'ВВЕДИТЕ ПАРОЛЬ ДЛЯ НОВОГО ПОЛЬЗОВАТЕЛЯ: '
-(echo $PASS) | passwd $NEW_USER &&
+(
+echo $PASS;
+echo $PASS;
+) | passwd $NEW_USER &&
 
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 #clear
