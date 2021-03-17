@@ -29,9 +29,9 @@ useradd -m -g users -G audio,power,storage,video,wheel -s /bin/bash $NEW_USER &&
 
 
 echo 'ВВЕДИТЕ ПАРОЛЬ ДЛЯ НОВОГО ПОЛЬЗОВАТЕЛЯ: '
-passwd $NEW_USER &&
+passwd $NEW_USER
 
-sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
+sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers &&
 #clear
 su $NEW_USER
 
