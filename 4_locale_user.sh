@@ -31,5 +31,6 @@ passwd $NEW_USER
 
 sed -i 's/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/g' /etc/sudoers
 #clear
+su $NEW_USER
 
 
