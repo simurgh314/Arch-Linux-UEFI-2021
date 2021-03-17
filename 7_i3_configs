@@ -1,0 +1,10 @@
+#!/bin/bash
+
+wget https://raw.githubusercontent.com/simurgh314/i3/main/.config/picom/picom.conf &&
+mkdir -p /home/$USER/.config/picom &&
+mv picom.conf /home/$USER/.config/picom/picom.conf &&
+
+wget https://raw.githubusercontent.com/simurgh314/i3/main/.config/i3/config &&
+mkdir -p /home/$USER/.config/i3 &&
+mv config /home/$USER/.config/i3/config
+
