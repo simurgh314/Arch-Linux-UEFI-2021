@@ -11,5 +11,6 @@ mv config /home/$USER/.config/i3/config
 wget https://raw.githubusercontent.com/simurgh314/i3/main/.config/polybar/config &&
 mkdir -p /home/$USER/.config/polybar &&
 mv config /home/$USER/.config/polybar/config
+chmod +x ~/.config/polybar/launch.sh
 
 
