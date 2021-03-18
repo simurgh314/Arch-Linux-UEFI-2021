@@ -5,7 +5,7 @@ echo 'УСТАНОВКА ПРОГРАММ'
 cd && 
 
 
-pack={
+(
 xorg-server 
 xorg-xinit 
 xorg-apps 
@@ -34,9 +34,6 @@ speedcrunch
 neofetch
 xfce4-terminal 
 gvfs
-}
-
-sudo pacman -Syu --noconfirm $pack
-
+) | sudo pacman -Syu --noconfirm
 #rofi pasystray pavucontrol pulseaudio-jack pulseaudio-equalizer flameshot thunar
 #alsa-plugins alsa-utils pulseaudio alsa gpart gparted kolourpaint ufw htop catfish
