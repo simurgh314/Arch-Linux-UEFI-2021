@@ -5,7 +5,9 @@ echo 'УСТАНОВКА ПРОГРАММ'
 cd && 
 
 
-pack={xorg-server 
+pack=(
+
+xorg-server 
 xorg-xinit 
 xorg-apps 
 xterm 
@@ -33,7 +35,7 @@ speedcrunch
 neofetch
 xfce4-terminal 
 gvfs
-} 
+)
 
 sudo pacman -Syu --noconfirm $pack
 
