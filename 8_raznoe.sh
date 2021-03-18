@@ -28,4 +28,8 @@ sudo echo '
 [Service]
 ExecStart=
 ExecStart=-/usr/bin/agetty --autologin $USER --noclear %I $TERM' > nano /etc/systemd/system/getty@tty1.service.d/override.conf
+sudo sed -i 's/ExecStart=-/usr/bin/agetty --autologin $USER --noclear %I $TERM/ExecStart=-/usr/bin/agetty --autologin $USER --noclear %I $TERM/g' /etc/systemd/system/getty@tty1.service.d/override.conf &&
+
+
+
 #проверить
