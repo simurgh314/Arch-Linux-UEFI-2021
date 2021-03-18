@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo 'УСТАНОВКА ПРОГРАММ'
-sudo pacman -Syu --noconfirm 
+cd && sudo pacman -Syu --noconfirm 
 {xorg-server 
 xorg-xinit 
 xorg-apps 
