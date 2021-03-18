@@ -31,7 +31,8 @@ usbutils
 speedcrunch
 neofetch
 xfce4-terminal
-gvfs)
+gvfs
+)
 
 sudo pacman -Syu --noconfirm $pack
 #rofi pasystray pavucontrol pulseaudio-jack pulseaudio-equalizer flameshot thunar
