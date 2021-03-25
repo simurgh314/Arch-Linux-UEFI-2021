@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# https://git.io/JYIUH
+
 echo 'СТАВИМ БАЗОВЫЕ ПАКЕТЫ'
 
 pacstrap /mnt linux-firmware linux-zen-headers linux-zen base base-devel nano dhcpcd mc net-tools git wget curl &&   
