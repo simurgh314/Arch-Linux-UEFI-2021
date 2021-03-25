@@ -8,38 +8,43 @@
 ################                                   ################
 ################         Сын ошибок трудных        ################
 ################                                   ################
-################              UEFI GPT             ################
+################            UEFI GPT 2021          ################
 ################                                   ################
 ###################################################################
 ###################################################################
 
 
 
-# СЕТЬ
+# 1 СЕТЬ
 ---------
-iwctl --passphrase пароль_сети station устройство connect имя_сети (создать $переменные под $passphrase, $устройство, $имя_сети)
-systemctl start dhcpcd.service (если проводной)
+iwctl --passphrase пароль_сети station интерфейс connect имя_сети
+Пример: iwctl --passphrase koshkazver555 station wlp2s0 connect Matrix
+
+systemctl start dhcpcd.service (если проводная сеть)
 
 
-# Если после перезагрузки системы у вас упадет сеть, вы можете попробовать вручную поднять интерфейс.
-"sudo ip link set wlp2s0 up" ( вместо wlp2s0 впишите название вашего интерфейса. Список доступных интерфейсов можно узнать
-командой ip addr или ifconfig), если сеть проводная, то активируйте проводной интерфейс (если он не активен) 
-и запустите сервис DHCP командой "sudo systemctl start dhcpcd". Эти манипуляции будут радовать вас до первого перезапуска. 
-Если желаете добавить их в постоянную автозагрузку,то наберите еще и "sudo systemctl enable dhcpcd" для проводного,
- и "sudo systemctl enable wpa_supplicant" для безпроводного.
-Создайте профиль службы netctl для WIFI: "sudo wifi-menu -o" запомните название получившегося профиля, 
+
+*******************************************************************************************************************
+  Если после перезагрузки системы у вас упадет сеть, вы можете попробовать вручную поднять интерфейс.
+'sudo ip link set wlp2s0 up' ( вместо 'wlp2s0' впишите название вашего интерфейса. Список доступных интерфейсов можно узнать
+командой 'ip addr' или 'ifconfig'), если сеть проводная, то активируйте проводной интерфейс (если он не активен) 
+и запустите сервис DHCP командой 'sudo systemctl start dhcpcd'. Эти манипуляции будут радовать вас до первого перезапуска. 
+Если желаете добавить их в постоянную автозагрузку,то наберите еще и 'sudo systemctl enable dhcpcd' для проводного,
+ и 'sudo systemctl enable wpa_supplicant' -для безпроводного.
+Создайте профиль службы netctl для WIFI: 'sudo wifi-menu -o' запомните название получившегося профиля, 
 состоящего из имени интерфейса и имени сети,например он может быть таким: wlp2s0-matrix777. 
-Затем добавьте его в автозагрузку: sudo netctl enable wlp2s0-matrix777
+Затем добавьте его в автозагрузку: 'sudo netctl enable wlp2s0-matrix777'
 Итого, в случае беспроводной сети, у вас должно быть запущено 2 сервиса:
 1) sudo systemctl enable wpa_supplicant
 2) sudo netctl enable wlp2s0-matrix777
-В случае проводного, у вас должен быть активен интрефейс (sudo ip link set nazvanie_interfeysa up)
-и запущен dhcp сервис (sudo systemctl start dhcpcd) (ну или настроены адреса вручную) 
+В случае проводного, у вас должен быть активен интрефейс и запущен dhcp сервис.
+*******************************************************************************************************************
 
 
 
-# ЛОКАЛИЗАЦИЯ
---------------------------------------------------------------------
+# 2 ЛОКАЛИЗАЦИЯ
+-------------------------
+timedatectl set-ntp true
 loadkeys ru
 setfont cyr-sun16
 nano /etc/locale.gen
@@ -48,7 +53,7 @@ export LANG="ru_RU.UTF-8"
 
 
 
-# РАЗМЕТКА (Используется PARTED)
+# 3 РАЗМЕТКА (Используется PARTED)
 ----------------------------------------------------------
 parted -a optimal /dev/sda  # выравнивание разделов
 unit mib
@@ -66,11 +71,11 @@ name 3 swap
 mkpart primary 4610 -1		#4 /dev/sda4 (ext4)
 name 4 root
 
-print						#зрим что вышло
+print						#смотрим что вышло
 
 
 
-# ФОРМАТИРОВАНИЕ
+# 4 ФОРМАТИРОВАНИЕ
 ---------------------------------------------
 mkfs.fat -F32 /dev/sda1			#EFI  (FAT32)
 mkfs.ext2 /dev/sda2				#boot (ext2)
@@ -80,7 +85,7 @@ swapon /dev/sda3
 
 
 
-# МОНТИРОВАНИЕ
+# 5 МОНТИРОВАНИЕ
 ---------------------------
 mount /dev/sda4 /mnt
 mkdir -p /mnt/{home,boot}
@@ -88,14 +93,15 @@ mount /dev/sda2 /mnt/boot
 
 
 
-# УСТАНОВКА БАЗОВОЙ СИСТЕМЫ
+# 6 УСТАНОВКА БАЗОВОЙ СИСТЕМЫ
 ------------------------------
-pacstrap /mnt linux-firmware linux-zen-headers linux-zen base base-devel nano nano dhcpcd dialog wpa_supplicant netctl mc git wget net-tools openssh curl
+pacstrap /mnt linux-firmware linux-zen-headers linux-zen base base-devel nano dhcpcd intel-ucode dialog wpa_supplicant netctl mc git wget net-tools openssh curl
+#networkmanager network-manager-applet + systemctl enable NetworkManager если он вообще нужен)
 genfstab -U /mnt >> /mnt/etc/fstab
 
 
 
-# ПЕРЕХОД В НОВОЕ ОКРУЖЕНИЕ
+# 7 ПЕРЕХОД В НОВОЕ ОКРУЖЕНИЕ
 ------------------------------
 arch-chroot  /mnt  /bin/bash
 nano /etc/mkinitcpio.conf	 
@@ -104,14 +110,14 @@ nano /etc/mkinitcpio.conf
 HOOKS=(base udev autodetect modconf block keymap filesystems keyboard fsck)
 (Сохранить изменения комбинация Ctrl+x после чего нужно нажать 'y' и Ентер)
 
-passwd пароль_админа  # ЗАДАЙТЕ ПАРОЛЬ РУТ, ИНАЧЕ НЕ ВОЙДЕТЕ В СВОЮ СИСТЕМУ ПОСЛЕ РЕСТАРТА!
+passwd пароль_админа       # 'ЗАДАЙТЕ ПАРОЛЬ РУТ, ИНАЧЕ НЕ ВОЙДЕТЕ В СВОЮ СИСТЕМУ ПОСЛЕ РЕСТАРТА!'
 
 
 
-# СОЗДАНИЕ ЯДРА И ЗАГРУЗЧИКА
+# 8 СОЗДАНИЕ ЯДРА И ЗАГРУЗЧИКА
 ---------------------------------
 
-pacman -Syu grub efibootmgr dosfstools os-prober mtools
+pacman -Sy grub efibootmgr dosfstools os-prober mtools
 cd /boot && mkinitcpio -p linux-zen
 mkdir /boot/EFI
 mount /dev/sda1  /boot/EFI
@@ -130,16 +136,16 @@ systemctl reboot
 
 
 
-# СЕТЬ WIFI
+# 9 СЕТЬ WIFI
 -------------------------------------------------------------
 sudo wifi-menu -o	#запоминаем название создаваемого профиля
-netctl enable название_профиля	#автозапуск
-systemctl enable wpa_supplicant	#автозапуск 
+netctl enable название_профиля	#автозапуск wifi
+systemctl enable wpa_supplicant	#автозапуск wifi
 sudo pacman -Syu
 
 
 
-# ЛОКАЛИЗАЦИЯ(), ЧАСЫ и ПРОЧЕЕ 
+# 10 ЛОКАЛИЗАЦИЯ(), ЧАСЫ и ПРОЧЕЕ 
 ------------------------------------
 hostnamectl set-hostname имя_хоста
 ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
@@ -153,20 +159,18 @@ export LANG="ru_RU.UTF-8"
 mkinitcpio -P
 grub-mkconfig -o /boot/grub/grub.cfg
 
-==========================================================
+*********************************************************
 # Если предполагается устанавливать 32битные приложения,
 то нужно раскомментировать ветку multilib в 
 конфиге /etc/pacman.conf
 
 [multilib]
 Include = /etc/pacman.d/mirrorlist
-
-==========================================================
-
+*********************************************************
 
 
 
-# СОЗДАНИЕ ПОЛЬЗОВАТЕЛЕЙ
+# 11 СОЗДАНИЕ ПОЛЬЗОВАТЕЛЕЙ
 ---------------------------------------------------------------------------------------
 useradd -m -g users -G audio,power,storage,video,wheel -s /bin/bash имя_пользователя
 passwd имя_пользователя		#создаем пароль для этого пользователя
@@ -177,26 +181,28 @@ exit
 
 
 
-###################################################################################
-#  ВСЕ ДАЛЬНЕЙШИЕ ДЕЙСТВИЯ СОВЕРШАЕМ ИЗ ПОД ПРОСТОГО ПОЛЬЗОВАТЕЛЯ ИСПОЛЬЗУЯ SUDO  #
-###################################################################################
+***********************************************************************************
+*  ВСЕ ДАЛЬНЕЙШИЕ ДЕЙСТВИЯ СОВЕРШАЕМ ИЗ ПОД ПРОСТОГО ПОЛЬЗОВАТЕЛЯ ИСПОЛЬЗУЯ SUDO  *
+***********************************************************************************
 
 
 
 
-# УСТАНОВКА Xorg 
+
+# 12 УСТАНОВКА Xorg 
 ----------------------------------------------------------------
 sudo pacman -S xorg-server xorg-xinit xorg-apps xterm mesa-libgl	
 
-(mesa-libgl если карта Nvidia и добавляем еще lib32-mesa если будут 32битные приложения)
+(mesa-libgl если карта Nvidia и добавляем еще lib32-mesa если будут 32битные приложения
+	если планируете ставить менеджер входа, типа lightdm, то пакет xorg-xinit не нужен)
 
 
 
 
-# УСТАНОВКА ДРАЙВЕРА ВИДЕО
-------------------------------
-# Поменяйте соотвественно на адрес (aur.archlinux.org/nvidia-390xx-utils.git) репозитория для своей видеокарты!
-# или установите драйвер из репозитория командой 'sudo pacman -S nvidia'
+# 13 УСТАНОВКА ДРАЙВЕРА ВИДЕОКАРТЫ
+----------------------------
+# Поменяйте соотвественно адрес (aur.archlinux.org/nvidia-390xx-utils.git) на адрес репозитория для своей видеокарты!
+# или установите драйвер из репозитория командой 'sudo pacman -S nvidia' тут все индивидуально, потому никаких советов.
 
 cd && git clone https://aur.archlinux.org/nvidia-390xx-utils.git && cd nvidia-390xx-utils && makepkg -sri &&
 
@@ -207,14 +213,19 @@ cd && git clone https://aur.archlinux.org/polybar.git && cd polybar && makepkg -
 
 
 
-# АВТОЛОГИН без DM (требуется пакет xorg-xinit)
------------------------------------------------
+# 14 АВТОЛОГИН БЕЗ DM /требуется пакет xorg-xinit/
+---------------------------------------------------------------------
+(Если автологин не нужен, смело ставим только нижние две строчки)
+sudo pacman -S lightdm lightdm-gtk-greeter --needed
+sudo systemctl enable lightdm
+
+
 1) Редактируем конфиг .xinitrc в домашней директории 
 (если он не существует ,то скопируем его: 'cp /etc/X11/xinit/xinitrc ~/.xinitrc'
 Вставляем в отмеченном месте наш i3. При запуске будет исполнена команда startx, она 
 запустит то окружение, которое вы укажете ЗДЕСЬ.
 
-==========================================================================
+************************************************
 if [ -d /etc/X11/xinit/xinitrc.d ] ; then
  for f in /etc/X11/xinit/xinitrc.d/?*.sh ; do
   [ -x "$f" ] && . "$f"
@@ -222,14 +233,16 @@ if [ -d /etc/X11/xinit/xinitrc.d ] ; then
  unset f
 fi
 
-exec i3 	# ВСТАВЛЯЕМ 'exec i3' или 'exec startxfce4' или 'exec startkde' 
+exec i3 	# ВСТАВЛЯЕМ 'exec i3' или 'exec startxfce4' итп.
+#exec startxfce4
+#exec startkde
 
 twm &
 xclock -geometry 50x50-1+1 &
 xterm -geometry 80x50+494+51 &
 xterm -geometry 80x20+494-0 &
 exec xterm -geometry 80x66+0+0 -name login
-==========================================================================
+************************************************
 
 
 2) Редактируем конфиг .bash_profile в домашней директории. 
@@ -241,15 +254,17 @@ nano ~/.bash_profile
 
 '[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx' чтобы получилось так:
 
+***************************************************
 
 [[ -f ~/.bashrc ]] && . ~/.bashrc
 [[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && exec startx
 
+***************************************************
 
 (Вместо '-eq 1' можно указать другую виртуальную консоль)
 
 
-3) Создадим юнит службы Systemd.
+3) Далее создадим юнит службы Systemd.
 
 sudo systemctl edit getty@tty1
 
@@ -259,35 +274,45 @@ sudo systemctl edit getty@tty1
 ExecStart=
 ExecStart=-/usr/bin/agetty --autologin USER --noclear %I $TERM
 
-
 Сохраняем, закрываем. После рестарта произойдет (наверное) автологин в консоль №1.
 Если понадобится залогиниться под другим пользователем, используйте комбинацию Ctrl+Alt+F2..F6 для вызова виртуальной консоли,
 и запускайте окружение командой 'startx'.
 
 
 
-# ШРИФТЫ
+# 15 ШРИФТЫ
 --------------
 sudo pacman -S ttf-font-awesome ttf-liberation ttf-dejavu opendesktop-fonts ttf-bitstream-vera ttf-arphic-uming ttf-hanazono ttf-arphic-ukai
 
 
 
-# УСТАНОВКА ПРОГРАММ
+
+# 16 ПОЛИБАР /требуется шрифт ttf-font-awesome/
+-----------------------------------------------
+git clone https://aur.archlinux.org/polybar.git &&  cd polybar  &&  makepkg -sir
+(конфиг можно взять тут > https://raw.githubusercontent.com/simurgh314/i3/main/.config/polybar/config)
+
+
+
+
+# 17 КОМПОЗИТОР PICOM (друг парадоксов и борец с тирингом)
+-------------------------------------------------------
+sudo pacman -S picom
+Запускается автоматом из конфига i3 строкой:
+'exec --no-startup-id  picom -b  --config /home/USER/.config/picom/picom.conf' 
+или просто так: 
+'exec --no-startup-id  picom -b --backend glx --vsync --xrender-sync-fence --glx-no-stencil --use-damage'
+
+Конфиг можно взять отсюда > https://github.com/simurgh314/i3/blob/main/.config/picom/picom.conf
+
+
+
+
+# 18 УСТАНОВКА i3 И ПРОГРАММ
 
 sudo pacman -Syu .....
 
-xorg-server 
-xorg-xinit 
-xorg-apps 
-xterm mesa-libgl 
-ttf-font-awesome 
-ttf-liberation 
-ttf-dejavu 
-opendesktop-fonts
-ttf-bitstream-vera 
-ttf-arphic-uming 
-ttf-hanazono 
-ttf-arphic-ukai 
+ 
 i3-gaps 
 nitrogen 
 xfce4-clipman-plugin
@@ -296,34 +321,43 @@ tumbler
 numlockx 
 firefox 
 ristretto 
-unzip 
+unzip
+unrar
 usbutils 
 speedcrunch 
 neofetch 
 xfce4-terminal 
 gvfs
+dmenu
 rofi 
 pasystray 
 pavucontrol 
 pulseaudio-jack 
-pulseaudio-equalizer 
+pulseaudio-equalizer
 flameshot 
 thunar
 thunar-volman
-alsa-plugins 
-alsa-utils 
-pulseaudio 
-alsa 
-gpart 
-gparted 
-kolourpaint 
-ufw 
+thunar-archive-plugin 
+pulseaudio  
+kolourpaint  
 htop 
 catfish
+lshw
 
 
 
 
+
+sudo pacman -S xdg-user-dirs
+xdg-user-dirs-update
+
+
+
+# 19 Установка AUR-пакетного менеджера (если нужен)
+------------------------------------------------
+git clone https://aur.archlinux.org/yay.git
+cd yay
+makepkg -si
 
 
 
