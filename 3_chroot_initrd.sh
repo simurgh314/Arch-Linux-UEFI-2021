@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# https://git.io/JYITl
+
 export DISK="vda" &&
 export LANG="ru_RU.UTF-8" &&
 export MODULE="" &&
