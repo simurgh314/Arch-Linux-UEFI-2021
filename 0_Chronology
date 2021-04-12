@@ -34,7 +34,7 @@ iwctl --passphrase пароль_сети station интерфейс connect им
 Создайте профиль службы netctl для WIFI: 'wifi-menu -o' запомните название получившегося профиля, 
 состоящего из имени интерфейса и имени сети,например он может быть таким: wlp2s0-matrix777. 
 Затем добавьте его в автозагрузку: 'netctl enable wlp2s0-matrix777'
-Итого, в случае беспроводной сети, у вас должно быть запущено 2 сервиса:
+Итого, в случае беспроводной сети, у вас должно быть запущено(добавлено в автозапуск) 2 сервиса:
 1) systemctl enable wpa_supplicant
 2) netctl enable wlp2s0-matrix777
 В случае проводного, у вас должен быть активен интрефейс и запущен dhcp сервис.
@@ -63,13 +63,13 @@ parted -a optimal /dev/sda  	# выравнивание разделов
 unit mib
 mklabel gpt
 
-mkpart primary 2 258		#1 /dev/sda1 256MB EFI (FAT32)
+mkpart primary 1 256		#1 /dev/sda1 256MB EFI (FAT32)
 set 1 boot on
 
-mkpart primary 258 4354		#2 /dev/sda2 4GB (SWAP)
+mkpart primary 256 4352		#2 /dev/sda2 4GB (SWAP)
 name 2 swap
 
-mkpart primary 4354 -1		#3 /dev/sda3 (EXT4)
+mkpart primary 4352 -1		#3 /dev/sda3 (EXT4)
 name 3 root
 
 print				#смотрим что вышло
@@ -117,7 +117,6 @@ passwd        # 'ЗАДАЙТЕ ПАРОЛЬ РУТ, ИНАЧЕ НЕ ВОЙДЕ�
 
 # 8 СОЗДАНИЕ ЯДРА И ЗАГРУЗЧИКА
 ---------------------------------
-
 pacman -Sy grub efibootmgr dosfstools os-prober mtools
 cd /boot && mkinitcpio -p linux-zen
 mkdir /boot/EFI
@@ -146,7 +145,7 @@ sudo pacman -Syu			#обновим систему
 
 
 
-# 10 ЛОКАЛИЗАЦИЯ(), ЧАСЫ и ПРОЧЕЕ 
+# 10 ЛОКАЛИЗАЦИЯ, ЧАСЫ и ПРОЧЕЕ 
 ------------------------------------
 hostnamectl set-hostname имя_хоста
 ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
@@ -172,7 +171,7 @@ Include = /etc/pacman.d/mirrorlist
 
 
 # 11 СОЗДАНИЕ ПОЛЬЗОВАТЕЛЕЙ
----------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------
 useradd -m -g users -G audio,power,storage,video,wheel -s /bin/bash имя_пользователя
 passwd имя_пользователя		#создаем пароль для этого пользователя
 echo "%wheel ALL=(ALL) ALL" >> /etc/sudoers
@@ -328,6 +327,7 @@ usbutils
 speedcrunch 
 neofetch 
 xfce4-terminal 
+xdg-user-dirs
 gvfs
 dmenu
 rofi 
@@ -335,10 +335,10 @@ pasystray
 pavucontrol 
 pulseaudio-jack 
 pulseaudio-equalizer
+alsa-plugins 
+alsa-utils
 flameshot 
-thunar
-thunar-volman
-thunar-archive-plugin 
+ranger
 pulseaudio  
 kolourpaint  
 htop 
@@ -346,11 +346,8 @@ catfish
 lshw
 
 
-
-
-
-sudo pacman -S xdg-user-dirs
 xdg-user-dirs-update
+
 
 
 
