@@ -18,25 +18,25 @@
 # 1 СЕТЬ
 ---------
 iwctl --passphrase пароль_сети station интерфейс connect имя_сети
-Пример: iwctl --passphrase koshkazver555 station wlp2s0 connect Matrix
+#Пример: iwctl --passphrase koshkazver555 station wlp2s0 connect Matrix
 
-systemctl start dhcpcd.service (если проводная сеть)
+# systemctl start dhcpcd.service (если проводная сеть)
 
 
 
 *******************************************************************************************************************
-  Если после перезагрузки системы у вас упадет сеть, вы можете попробовать вручную поднять интерфейс.
-'sudo ip link set wlp2s0 up' ( вместо 'wlp2s0' впишите название вашего интерфейса. Список доступных интерфейсов можно узнать
+ # Если после перезагрузки системы у вас упадет сеть, вы можете попробовать вручную поднять интерфейс.
+'ip link set wlp2s0 up' ( вместо 'wlp2s0' впишите название вашего интерфейса. Список доступных интерфейсов можно узнать
 командой 'ip addr' или 'ifconfig'), если сеть проводная, то активируйте проводной интерфейс (если он не активен) 
-и запустите сервис DHCP командой 'sudo systemctl start dhcpcd'. Эти манипуляции будут радовать вас до первого перезапуска. 
-Если желаете добавить их в постоянную автозагрузку,то наберите еще и 'sudo systemctl enable dhcpcd' для проводного,
- и 'sudo systemctl enable wpa_supplicant' -для безпроводного.
-Создайте профиль службы netctl для WIFI: 'sudo wifi-menu -o' запомните название получившегося профиля, 
+и запустите сервис DHCP командой 'systemctl start dhcpcd'. Эти манипуляции будут радовать вас до первого перезапуска. 
+Если желаете добавить их в постоянную автозагрузку,то наберите еще и 'systemctl enable dhcpcd' для проводного,
+ и 'systemctl enable wpa_supplicant' -для безпроводного.
+Создайте профиль службы netctl для WIFI: 'wifi-menu -o' запомните название получившегося профиля, 
 состоящего из имени интерфейса и имени сети,например он может быть таким: wlp2s0-matrix777. 
-Затем добавьте его в автозагрузку: 'sudo netctl enable wlp2s0-matrix777'
+Затем добавьте его в автозагрузку: 'netctl enable wlp2s0-matrix777'
 Итого, в случае беспроводной сети, у вас должно быть запущено 2 сервиса:
-1) sudo systemctl enable wpa_supplicant
-2) sudo netctl enable wlp2s0-matrix777
+1) systemctl enable wpa_supplicant
+2) netctl enable wlp2s0-matrix777
 В случае проводного, у вас должен быть активен интрефейс и запущен dhcp сервис.
 *******************************************************************************************************************
 
@@ -55,48 +55,49 @@ export LANG="ru_RU.UTF-8"
 
 # 3 РАЗМЕТКА (Используется PARTED)
 ----------------------------------------------------------
-parted -a optimal /dev/sda  # выравнивание разделов
+Т.к шифрование не используется, нет смысла выносить /boot
+на отдельный раздел. Делаем три раздела: EFI,Swap и Root.
+----------------------------------------------------------
+
+parted -a optimal /dev/sda  	# выравнивание разделов
 unit mib
 mklabel gpt
 
 mkpart primary 2 258		#1 /dev/sda1 256MB EFI (FAT32)
 set 1 boot on
 
-mkpart primary 258 514		#2 /dev/sda2 256MB boot (ext2)
-name 2 boot
+mkpart primary 258 4354		#2 /dev/sda2 4GB (SWAP)
+name 2 swap
 
-mkpart primary 514 4610		#3 /dev/sda3 4GB (SWAP)
-name 3 swap
+mkpart primary 4354 -1		#3 /dev/sda3 (EXT4)
+name 3 root
 
-mkpart primary 4610 -1		#4 /dev/sda4 (ext4)
-name 4 root
-
-print						#смотрим что вышло
+print				#смотрим что вышло
 
 
 
 # 4 ФОРМАТИРОВАНИЕ
 ---------------------------------------------
-mkfs.fat -F32 /dev/sda1			#EFI  (FAT32)
-mkfs.ext2 /dev/sda2				#boot (ext2)
-mkfs.ext4 /dev/sda4				#root (ext4)
-mkswap /dev/sda3				#swap
-swapon /dev/sda3
+mkfs.fat -F32 /dev/sda1		#EFI  (FAT32)
+mkswap /dev/sda2		#swap
+swapon /dev/sda2		#swap
+mkfs.ext4 /dev/sda3		#root (ext4)
 
 
 
 # 5 МОНТИРОВАНИЕ
 ---------------------------
-mount /dev/sda4 /mnt
+mount /dev/sda3 /mnt
 mkdir -p /mnt/{home,boot}
-mount /dev/sda2 /mnt/boot
+
+lsblk	# вдумчиво смотрим
 
 
 
 # 6 УСТАНОВКА БАЗОВОЙ СИСТЕМЫ
 ------------------------------
 pacstrap /mnt linux-firmware linux-zen-headers linux-zen base base-devel nano dhcpcd intel-ucode dialog wpa_supplicant netctl mc git wget net-tools openssh curl
-#networkmanager network-manager-applet + systemctl enable NetworkManager если он вообще нужен)
+#networkmanager network-manager-applet (не забудьте в конце сделать "systemctl enable NetworkManager", если он вообще нужен)
 genfstab -U /mnt >> /mnt/etc/fstab
 
 
@@ -106,11 +107,11 @@ genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot  /mnt  /bin/bash
 nano /etc/mkinitcpio.conf	 
 
-> добавить "keymap" в строку HOOKS чтобы получилось так: 
+#команда выше откроет редактор, нужно добавить "keymap" в строку HOOKS чтобы получилось так: 
 HOOKS=(base udev autodetect modconf block keymap filesystems keyboard fsck)
 (Сохранить изменения комбинация Ctrl+x после чего нужно нажать 'y' и Ентер)
 
-passwd пароль_админа       # 'ЗАДАЙТЕ ПАРОЛЬ РУТ, ИНАЧЕ НЕ ВОЙДЕТЕ В СВОЮ СИСТЕМУ ПОСЛЕ РЕСТАРТА!'
+passwd        # 'ЗАДАЙТЕ ПАРОЛЬ РУТ, ИНАЧЕ НЕ ВОЙДЕТЕ В СВОЮ СИСТЕМУ ПОСЛЕ РЕСТАРТА!'
 
 
 
@@ -130,18 +131,18 @@ systemctl reboot
 
 
 
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-МОМЕНТ ИСТИНЫ: ПЕРЕЗАГРУЗКА (логинимся под простым пользователем)
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+****************************
+МОМЕНТ ИСТИНЫ: ПЕРЕЗАГРУЗКА 
+****************************
 
 
 
 # 9 СЕТЬ WIFI
 -------------------------------------------------------------
-sudo wifi-menu -o	#запоминаем название создаваемого профиля
-netctl enable название_профиля	#автозапуск wifi
-systemctl enable wpa_supplicant	#автозапуск wifi
-sudo pacman -Syu
+sudo wifi-menu -o			#запоминаем название создаваемого профиля
+netctl enable название_профиля		#автозапуск wifi
+systemctl enable wpa_supplicant		#автозапуск wifi
+sudo pacman -Syu			#обновим систему
 
 
 
@@ -313,7 +314,7 @@ sudo pacman -S picom
 sudo pacman -Syu .....
 
  
-i3-gaps 
+i3-gaps (или i3-wm)
 nitrogen 
 xfce4-clipman-plugin
 lxappearance 
