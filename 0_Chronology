@@ -353,18 +353,10 @@ kolourpaint
 htop 
 catfish
 lshw
+udiskie
+urxvt
 
-
-xdg-user-dirs-update
-
-
-
-
-# 19 Установка AUR-пакетного менеджера (если нужен)
-------------------------------------------------
-git clone https://aur.archlinux.org/yay.git
-cd yay
-makepkg -si
+/ / / 
 
 
 
